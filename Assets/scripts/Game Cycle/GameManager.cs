@@ -55,6 +55,8 @@ public class GameManager : MonoBehaviour
 
     private AudioSource currentAudio = null;
 
+    private Coroutine flashingMessageCoroutine = null;
+
     [SerializeField] private GameState startingState = GameState.LOADTITLE;
 
     [SerializeField] private string menuScreenSceneName;
@@ -71,6 +73,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TMPro.TMP_Text timerText;
     [SerializeField] private TMPro.TMP_Text speedText;
     [SerializeField] private TMPro.TMP_Text countDownText;
+    [SerializeField] private TMPro.TMP_Text soundBarrierText;
 
     [SerializeField] private AudioSource MenuMusic;
     [SerializeField] private AudioSource ScoreScreenMusic;
@@ -182,6 +185,26 @@ public class GameManager : MonoBehaviour
         {
             topSpeed = currentSpeed;
         }
+
+        //Breaking the sound barrier
+        if(currentSpeed >= 343)
+        {
+            currentAudio.mute = true;
+            //soundBarrierText.gameObject.SetActive(true);
+            flashingMessageCoroutine = StartCoroutine(FlashSoundBarrierMessage());
+            
+        }
+        else
+        {
+            currentAudio.mute = false;
+            soundBarrierText.gameObject.SetActive(false);
+
+            if(flashingMessageCoroutine != null)
+            {
+                StopCoroutine(flashingMessageCoroutine);
+                flashingMessageCoroutine = null;
+            }
+        }
     }
 
 
@@ -233,6 +256,17 @@ public class GameManager : MonoBehaviour
 
             //sbSpeed.Append(((int)(GameManager.Instance.getTopSpeed())).ToString());
 
+        }
+    }
+
+    public IEnumerator FlashSoundBarrierMessage()
+    {
+        while(true)
+        {
+            soundBarrierText.gameObject.SetActive(true);
+            yield return new WaitForSeconds(0.5f);
+            soundBarrierText.gameObject.SetActive(false);
+            yield return new WaitForSeconds(0.5f);
         }
     }
 
