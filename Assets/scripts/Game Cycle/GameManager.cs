@@ -175,7 +175,6 @@ public class GameManager : MonoBehaviour
         return topSpeed;
     }
 
-
     public void ReportCurrentSpeed(float speed)
     {
         currentSpeed = speed;
@@ -469,7 +468,7 @@ public class GameManager : MonoBehaviour
 
         
         timerText.text = "Time: 000";
-        speedText.text = "MPH: \n000";
+        speedText.text = "M/S: \n000";
 
         HUD.SetActive(false);
 
@@ -505,7 +504,7 @@ public class GameManager : MonoBehaviour
         timerText.text = sbTimer.ToString();
 
         StringBuilder sbSpeed = new StringBuilder();
-        sbSpeed.Append("MPH: \n");
+        sbSpeed.Append("M/S: \n");
         sbSpeed.Append(currentSpeed.ToString());
         speedText.text = sbSpeed.ToString();
 

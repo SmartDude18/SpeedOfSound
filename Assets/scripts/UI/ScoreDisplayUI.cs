@@ -24,7 +24,7 @@ public class ScoreDisplayUI : MonoBehaviour
         sbSpeed.Append("Top Speed: ");
         //sbSpeed.Append(GameManager.Instance.getTopSpeed());
         sbSpeed.Append(((int)(GameManager.Instance.getTopSpeed())).ToString());
-        sbSpeed.Append(" MPH");
+        sbSpeed.Append(" Meters Per Second");
 
         TopSpeedText.text = sbSpeed.ToString();
 
