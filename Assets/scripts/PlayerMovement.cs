@@ -94,6 +94,7 @@ public class PlayerMovement : MonoBehaviour
                 Jump();
             }
             CheckGrappelInput();
+            GameManager.Instance.ReportCurrentSpeed(playerRB.linearVelocity.magnitude);
         }
     }
 
