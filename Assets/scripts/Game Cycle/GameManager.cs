@@ -191,7 +191,10 @@ public class GameManager : MonoBehaviour
         {
             currentAudio.mute = true;
             //soundBarrierText.gameObject.SetActive(true);
-            flashingMessageCoroutine = StartCoroutine(FlashSoundBarrierMessage());
+            if(flashingMessageCoroutine == null)
+            {
+                flashingMessageCoroutine = StartCoroutine(FlashSoundBarrierMessage());
+            }
             
         }
         else

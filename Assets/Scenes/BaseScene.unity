@@ -1853,7 +1853,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1368107887
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2462,6 +2462,7 @@ MonoBehaviour:
   timerText: {fileID: 1959935947}
   speedText: {fileID: 119094688}
   countDownText: {fileID: 1884900932}
+  soundBarrierText: {fileID: 1368107888}
   MenuMusic: {fileID: 1293277233}
   ScoreScreenMusic: {fileID: 1434617816}
   levelAudio:
