@@ -276,14 +276,6 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    void Slide()
-    {
-        //shorten player to fit under gaps
-        //run timer for how long this can go for in a single go
-        //timer starts at 0 and goes up until it goes out of time
-        //can be canceled with jumps
-    }
-
     void WallRun()
     {
         //i dont think this is how it will be formatted, but I can use this to hold notes
