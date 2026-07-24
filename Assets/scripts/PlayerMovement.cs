@@ -1,3 +1,4 @@
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -28,9 +29,11 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField]
     private float grappelMaxLength;
     [SerializeField]
-    private float swingAirControlSensitivity, rappelReelInStrength;
+    private float swingAirControlSensitivity, rappelReelInStrength, swingSpringStrength = 4.5f, swingDamperStrength = 7f;
     [SerializeField]
     private Material grappelLineMat;
+    [SerializeField]
+    private LayerMask grappelLayer;
 
     [Space(15)]
     [Header("object Configurations")]
@@ -79,50 +82,16 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        playerMove();
-        GroundCheck();
-        if (Input.GetButtonDown("Jump"))
+        if(Time.timeScale != 0)
         {
-            Jump();
+            playerMove();
+            GroundCheck();
+            if (Input.GetButtonDown("Jump"))
+            {
+                Jump();
+            }
+            CheckGrappelInput();
         }
-        //startiing a fresh line
-        if (Input.GetMouseButton(0) || Input.GetMouseButton(1))
-        {
-            if (currentGrappelState == grappelState.NONE)
-            {
-                if (Input.GetMouseButtonDown(0))
-                {
-                    GrappelBase(true);
-                }
-                else if (Input.GetMouseButtonDown(1))
-                {
-                    GrappelBase(false);
-                }
-            }
-            if (currentGrappelState == grappelState.SWING && !Input.GetMouseButton(0) && Input.GetMouseButton(1))
-            {
-                currentGrappelState = grappelState.RAPPEL;
-                StartRappel();
-            }
-            else if (currentGrappelState == grappelState.RAPPEL && Input.GetMouseButton(0) && !Input.GetMouseButton(1))
-            {
-                currentGrappelState = grappelState.SWING;
-                StartSwing();
-            }
-            if (grappelPoint != null)
-            {
-                lineRenderer.SetPosition(0, transform.position);
-                lineRenderer.SetPosition(1, grappelPoint.Value);
-            }
-        }
-        else
-        {
-            currentGrappelState = grappelState.NONE;
-            grappelPoint = null;
-        }
-
-
-
     }
 
     void Jump()
@@ -178,6 +147,20 @@ public class PlayerMovement : MonoBehaviour
     //add in the connection point to the method params
     void StartSwing()
     {
+        if(grappelPoint != null)
+        {
+            activeSpringJoint = transform.AddComponent<SpringJoint>();
+            activeSpringJoint.autoConfigureConnectedAnchor = false;
+            activeSpringJoint.connectedAnchor = grappelPoint.Value;
+
+            float distance = Vector3.Distance(transform.position, grappelPoint.Value);
+
+            activeSpringJoint.minDistance = distance * .25f;
+            activeSpringJoint.maxDistance = distance * .8f;
+
+            activeSpringJoint.spring = swingSpringStrength;
+            activeSpringJoint.damper = swingDamperStrength;
+        }
         //connect the player and the connection point with a joint
         //probably a spring joint, configured to match current length to point, perhaps a tad less
     }
@@ -185,17 +168,61 @@ public class PlayerMovement : MonoBehaviour
     //add in the connection point to the method params
     void StartRappel()
     {
-        activeSpringJoint = transform.AddComponent<SpringJoint>();
-        Rigidbody grappelRb;
-        if (grappelObject.TryGetComponent<Rigidbody>(out grappelRb))
+        if (grappelPoint != null)
         {
-            activeSpringJoint.connectedBody = grappelRb;
-            activeSpringJoint.spring = rappelReelInStrength;
-            activeSpringJoint.maxDistance = 0;
+            Vector3 direction = grappelPoint.Value - transform.position;
+            float distance = Vector3.Distance(transform.position, grappelPoint.Value);
+            playerRB.AddForce(direction.normalized * distance * rappelReelInStrength, ForceMode.Impulse);
         }
 
         //connect the player and the connection point with a joint
         //probably a spring joint, shorter to pull the player to the point
+    }
+
+    void CheckGrappelInput()
+    {
+        //starting a fresh line
+        if (Input.GetMouseButton(0) || Input.GetMouseButton(1))
+        {
+            if (currentGrappelState == grappelState.NONE)
+            {
+                if (Input.GetMouseButtonDown(0))
+                {
+                    GrappelBase(true);
+                }
+                else if (Input.GetMouseButtonDown(1))
+                {
+                    GrappelBase(false);
+                }
+            }
+            if (currentGrappelState == grappelState.SWING && !Input.GetMouseButton(0) && Input.GetMouseButton(1))
+            {
+                currentGrappelState = grappelState.RAPPEL;
+                StartRappel();
+            }
+            else if (currentGrappelState == grappelState.RAPPEL && Input.GetMouseButton(0) && !Input.GetMouseButton(1))
+            {
+                currentGrappelState = grappelState.SWING;
+                StartSwing();
+            }
+            if (grappelPoint != null)
+            {
+                lineRenderer.SetPosition(0, transform.position);
+                lineRenderer.SetPosition(1, grappelPoint.Value);
+                // Set the width
+                lineRenderer.startWidth = 0.1f;
+                lineRenderer.endWidth = 0.1f;
+            }
+        }
+        else
+        {
+            Destroy(activeSpringJoint);
+            currentGrappelState = grappelState.NONE;
+            grappelPoint = null;
+            // Set the width
+            lineRenderer.startWidth = 0f;
+            lineRenderer.endWidth = 0f;
+        }
     }
 
     void GrappelBase(bool isLeftClick)
@@ -204,7 +231,12 @@ public class PlayerMovement : MonoBehaviour
         //may need to be reconfigured due to input system
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
-        Physics.Raycast(ray, out hit);
+        if(!Physics.Raycast(ray.origin, ray.direction, out hit, grappelMaxLength,grappelLayer))
+        {
+            grappelPoint = null;
+            grappelObject = null;
+            return;
+        }
         grappelPoint = hit.point;
         grappelObject = hit.transform.gameObject;
         //also draw the line

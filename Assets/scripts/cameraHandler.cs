@@ -26,14 +26,17 @@ public class cameraHandler : MonoBehaviour
     }
 
     // Update is called once per frame
-    void FixedUpdate()
+    void Update()
     {
-        //rotate body based on X
-        Vector3 currentPlayerAngle = playerRigidbody.rotation.eulerAngles;
-        playerRigidbody.rotation = Quaternion.Euler(currentPlayerAngle.x, currentPlayerAngle.y + (Input.GetAxis("Mouse X") * cameraSensitivity.x * Time.deltaTime), currentPlayerAngle.z);
-        //rotate camera based on y
-        cameraYAngle -= (Input.GetAxis("Mouse Y") * Time.deltaTime * cameraSensitivity.y);
-        cameraYAngle = Mathf.Clamp(cameraYAngle, minCameraYAngle, maxCameraYAngle);
-        playerCam.transform.localRotation = Quaternion.Euler(cameraYAngle, 0, 0);
+        if (Time.timeScale != 0)
+        {
+            //rotate body based on X
+            Vector3 currentPlayerAngle = transform.rotation.eulerAngles;
+            transform.rotation = Quaternion.Euler(currentPlayerAngle.x, currentPlayerAngle.y + (Input.GetAxis("Mouse X") * cameraSensitivity.x * Time.deltaTime), currentPlayerAngle.z);
+            //rotate camera based on y
+            cameraYAngle -= (Input.GetAxis("Mouse Y") * Time.deltaTime * cameraSensitivity.y);
+            cameraYAngle = Mathf.Clamp(cameraYAngle, minCameraYAngle, maxCameraYAngle);
+            playerCam.transform.localRotation = Quaternion.Euler(cameraYAngle, 0, 0);
+        }
     }
 }
