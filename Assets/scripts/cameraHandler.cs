@@ -2,8 +2,21 @@ using UnityEngine;
 
 public class cameraHandler : MonoBehaviour
 {
-    [field:SerializeField]
-    public GameObject playerCam { get; private set; }
+    [Header("Basic Camera Settings")]
+    [SerializeField]
+    private Vector2 cameraSensitivity;
+    [SerializeField]
+    private int minCameraYAngle, maxCameraYAngle;
+
+    [Space(15)]
+    [Header("object Configurations")]
+    [SerializeField]
+    private GameObject playerCam;
+    [SerializeField]
+    private Rigidbody playerRigidbody;
+
+    private float cameraYAngle = 0f;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -13,10 +26,14 @@ public class cameraHandler : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         //rotate body based on X
+        Vector3 currentPlayerAngle = playerRigidbody.rotation.eulerAngles;
+        playerRigidbody.rotation = Quaternion.Euler(currentPlayerAngle.x, currentPlayerAngle.y + (Input.GetAxis("Mouse X") * cameraSensitivity.x * Time.deltaTime), currentPlayerAngle.z);
         //rotate camera based on y
-        //clamp the camera rotation to not be stupid
+        cameraYAngle -= (Input.GetAxis("Mouse Y") * Time.deltaTime * cameraSensitivity.y);
+        cameraYAngle = Mathf.Clamp(cameraYAngle, minCameraYAngle,maxCameraYAngle);
+        playerCam.transform.localRotation = Quaternion.Euler(cameraYAngle, 0, 0);
     }
 }

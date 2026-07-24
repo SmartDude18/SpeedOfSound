@@ -48,7 +48,7 @@ public class PlayerMovement : MonoBehaviour
     [Space(15)]
     [Header("Debug")]
     [SerializeField]
-    private bool isGrounded;
+    private bool isGrounded = true;
     [SerializeField]
     private bool hasDoubleJumped;
 
@@ -63,7 +63,12 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        playerMove();
+        GroundCheck();
+        if (Input.GetButtonDown("Jump"))
+        {
+            Jump();
+        }
     }
 
     void Jump()
@@ -90,8 +95,22 @@ public class PlayerMovement : MonoBehaviour
     void playerMove()
     {
         //take input with acceleration and add to rigidbody
+        playerRB.AddForce((transform.forward * Input.GetAxis("Vertical") * groundAcceleration) + (transform.right * Input.GetAxis("Horizontal") * groundAcceleration), ForceMode.Force);
         //if on the ground and speed is more than the groundSpeedDecayUpperBound, start the timer
-        //if timer is greater than the time, start decay by groundSpeedDecayRate
+        if(isGrounded && playerRB.linearVelocity.magnitude >= groundSpeedDecayUpperBound)//or the speed
+        {
+            groundDecayDelayTimer += Time.deltaTime;
+            if(groundDecayDelayTimer >= groundSpeedDecayDelay)
+            {
+                //reduce the speed
+                playerRB.linearVelocity *= groundSpeedDecayRate;
+            }
+            
+        }
+        else //reset if not on ground or slowed down
+        {
+            groundDecayDelayTimer = 0;
+        }
     }
 
     void GroundCheck()
