@@ -430,6 +430,8 @@ public class GameManager : MonoBehaviour
         timerText.text = "Time: 000";
         speedText.text = "MPH: \n000";
 
+        HUD.SetActive(false);
+
         PauseGameTime();
 
         currentSpeed = 0;
