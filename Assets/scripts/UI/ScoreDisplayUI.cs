@@ -15,14 +15,15 @@ public class ScoreDisplayUI : MonoBehaviour
     {
         StringBuilder sbTime = new StringBuilder();
         sbTime.Append("Final Time: ");
-        sbTime.Append(GameManager.Instance.getTimer());
+        sbTime.Append((int)(GameManager.Instance.getTimer())).ToString();
         sbTime.Append(" Seconds");
 
         FinalTimeText.text = sbTime.ToString();
 
         StringBuilder sbSpeed = new StringBuilder();
         sbSpeed.Append("Top Speed: ");
-        sbSpeed.Append(GameManager.Instance.getTopSpeed());
+        //sbSpeed.Append(GameManager.Instance.getTopSpeed());
+        sbSpeed.Append(((int)(GameManager.Instance.getTopSpeed())).ToString());
         sbSpeed.Append(" MPH");
 
         TopSpeedText.text = sbSpeed.ToString();

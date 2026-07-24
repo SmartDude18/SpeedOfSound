@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Text;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -17,7 +18,8 @@ public enum GameState
     STARTGAME,
     PLAY,
     LOADLEVELCOMPLETESCREEN,
-    LEVELCOMPLETESCREEN
+    LEVELCOMPLETESCREEN,
+    RESTARTLEVEL
 }
 
 
@@ -38,6 +40,7 @@ public class GameManager : MonoBehaviour
     private bool loadingGameLevel = false;
     private bool startingGame = false;
     private bool loadingFinalScreen = false;
+    private bool restartingLevel = false;
 
     private bool finalSceneLoaded = false;
     private bool menuSceneLoaded = false;
@@ -47,6 +50,7 @@ public class GameManager : MonoBehaviour
     private int maxLevel;
 
     private float timer = 10.5f;
+    private float currentSpeed = 98;
     private float topSpeed = 112;
 
     [SerializeField] private GameState startingState = GameState.LOADTITLE;
@@ -60,6 +64,11 @@ public class GameManager : MonoBehaviour
 
 
     [SerializeField] private GameObject HUD;
+    [SerializeField] private GameObject CountDownPanel;
+    [SerializeField] private GameObject PausePanel;
+    [SerializeField] private TMPro.TMP_Text timerText;
+    [SerializeField] private TMPro.TMP_Text speedText;
+    [SerializeField] private TMPro.TMP_Text countDownText;
 
     private void Awake()
     {
@@ -90,7 +99,7 @@ public class GameManager : MonoBehaviour
             case GameState.TITLE:
                 break;
             case GameState.LOADMAINMENU:
-                if(!loadingMenu)
+                if (!loadingMenu)
                 {
                     StartCoroutine(LoadMenuScene());
                     gameState = GameState.MAINMENU;
@@ -125,6 +134,13 @@ public class GameManager : MonoBehaviour
                 break;
             case GameState.LEVELCOMPLETESCREEN:
                 break;
+            case GameState.RESTARTLEVEL:
+                if(!restartingLevel)
+                {
+                    StartCoroutine(RestartLevel());
+                    restartingLevel = true;
+                }
+                break;
             default:
                 break;
         }
@@ -151,6 +167,15 @@ public class GameManager : MonoBehaviour
         return topSpeed;
     }
 
+
+    public void ReportCurrentSpeed(float speed)
+    {
+        currentSpeed = speed;
+        if(topSpeed < currentSpeed)
+        {
+            topSpeed = currentSpeed;
+        }
+    }
 
 
 
@@ -190,6 +215,56 @@ public class GameManager : MonoBehaviour
 
 
 
+    #region Other Coroutines
+    private IEnumerator CountDown()
+    {
+        for(float i = 3; i > 0; i -= Time.unscaledDeltaTime)
+        {
+            countDownText.text = (((int)i) + 1).ToString();
+
+            yield return i;
+
+            //sbSpeed.Append(((int)(GameManager.Instance.getTopSpeed())).ToString());
+
+        }
+    }
+
+
+    public IEnumerator UnpauseGame()
+    {
+        PausePanel.SetActive(false);
+
+        CountDownPanel.SetActive(true);
+        yield return StartCoroutine(CountDown());
+        CountDownPanel.SetActive(false);
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+
+        Time.timeScale = 1.0f;
+    }
+
+    #endregion Other Coroutines
+
+    #region Other Functions
+    public void PauseGameTime()
+    {
+        Time.timeScale = 0.0f;
+    }
+
+    public void PauseGame()
+    {
+        PauseGameTime();
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
+        PausePanel.SetActive(true);
+    }
+
+
+    #endregion Other Functions
+
 
     #region GameStateUpdates
 
@@ -199,6 +274,7 @@ public class GameManager : MonoBehaviour
     private IEnumerator LoadFinalScene()
     {
         HUD.SetActive(false);
+        PausePanel.SetActive(false);
 
         if (!sceneLoadingComplete)
         {
@@ -208,12 +284,12 @@ public class GameManager : MonoBehaviour
                 menuSceneLoaded = false;
             }
 
-            //if (gameSceneLoaded)
-            //{
-            //    StartCoroutine(UnloadScene(gameSceneName));
-            //    gameSceneLoaded = false;
-            //}
-            //
+            if (gameSceneLoaded)
+            {
+                StartCoroutine(UnloadScene(LevelNames[currentLevel]));
+                gameSceneLoaded = false;
+            }
+            
             if (!finalSceneLoaded)
             {
                yield return StartCoroutine(LoadScene(finalScreenSceneName));
@@ -223,6 +299,10 @@ public class GameManager : MonoBehaviour
 
             sceneLoadingComplete = true;
         }
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
 
         sceneLoadingComplete = false;
         loadingFinalScreen = false;
@@ -236,6 +316,7 @@ public class GameManager : MonoBehaviour
     private IEnumerator LoadMenuScene()
     {
         HUD.SetActive(false);
+        PausePanel.SetActive(false);
 
         if (!sceneLoadingComplete)
         {
@@ -244,12 +325,15 @@ public class GameManager : MonoBehaviour
                yield return StartCoroutine(UnloadScene(finalScreenSceneName));
                finalSceneLoaded = false;
            }
-           //
-           //if (gameSceneLoaded)
-           //{
-           //    StartCoroutine(UnloadScene(gameSceneName));
-           //    gameSceneLoaded = false;
-           //}
+
+            if (gameSceneLoaded)
+            {
+                StartCoroutine(UnloadScene(LevelNames[currentLevel]));
+                gameSceneLoaded = false;
+            }
+
+            currentLevel = -1;
+
 
             if (!menuSceneLoaded)
             {
@@ -270,6 +354,8 @@ public class GameManager : MonoBehaviour
     /// </summary>
     private IEnumerator LoadLevel()
     {
+        PausePanel.SetActive(false);
+
         if (!sceneLoadingComplete)
         {
             if (finalSceneLoaded)
@@ -297,7 +383,7 @@ public class GameManager : MonoBehaviour
                 if (currentLevel >= maxLevel)
                 {
                     gameState = GameState.LOADMAINMENU;
-                    currentLevel = 0;
+                    currentLevel = -1;
                     yield break;
                 }
 
@@ -334,7 +420,26 @@ public class GameManager : MonoBehaviour
         //Logic for starting the game (ie a countdown)
 
         //So that it won't crash during early testing (remove this once we have the countdown)
-        yield return new WaitForSeconds(0.1f);
+        //yield return new WaitForSeconds(0.1f);
+
+        //CountDownPanel.SetActive(true);
+        //yield return StartCoroutine(CountDown());
+        //CountDownPanel.SetActive(false);
+
+        
+        timerText.text = "Time: 000";
+        speedText.text = "MPH: \n000";
+
+        HUD.SetActive(false);
+
+        PauseGameTime();
+
+        currentSpeed = 0;
+        topSpeed = 0;
+        timer = 0;
+
+        yield return StartCoroutine(UnpauseGame());
+
 
         HUD.SetActive(true);
 
@@ -350,12 +455,78 @@ public class GameManager : MonoBehaviour
     {
         //ANY GAME MANAGER CRITICAL LOGIC GOES HERE!!!
 
+        timer += Time.deltaTime;
+
+        StringBuilder sbTimer = new StringBuilder();
+        sbTimer.Append("Time: ");
+        sbTimer.Append(timer.ToString());
+        //sbTimer.Append(((int)timer).ToString());
+        timerText.text = sbTimer.ToString();
+
+        StringBuilder sbSpeed = new StringBuilder();
+        sbSpeed.Append("MPH: \n");
+        sbSpeed.Append(currentSpeed.ToString());
+        speedText.text = sbSpeed.ToString();
+
+
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+           PauseGame();
+        }
+
         if(Input.GetKeyDown(KeyCode.N))
         {
             gameState = GameState.LOADLEVEL;
         }
     }
 
+
+
+    private IEnumerator RestartLevel()
+    {
+        PausePanel.SetActive(false);
+
+        if (!sceneLoadingComplete)
+        {
+            if (!levelUnloadingComplete)
+            {
+                if (currentLevel != -1)
+                {
+                    yield return StartCoroutine(UnloadScene(LevelNames[currentLevel]));
+
+                }
+
+                //currentLevel++;
+                if (currentLevel >= maxLevel)
+                {
+                    gameState = GameState.LOADMAINMENU;
+                    currentLevel = 0;
+                    yield break;
+                }
+
+                levelUnloadingComplete = true;
+                gameSceneLoaded = true;
+            }
+
+            if (!levelLoadingComplete)
+            {
+                yield return StartCoroutine(LoadScene(LevelNames[currentLevel]));
+
+                levelLoadingComplete = true;
+                gameSceneLoaded = true;
+            }
+
+            gameSceneLoaded = true;
+
+            sceneLoadingComplete = true;
+        }
+
+        restartingLevel = false;
+        sceneLoadingComplete = false;
+        levelLoadingComplete = false;
+        levelUnloadingComplete = false;
+        gameState = GameState.STARTGAME;
+    }
 
     #endregion GameStateUpdates
 
