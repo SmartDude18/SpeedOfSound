@@ -151,7 +151,10 @@ MonoBehaviour:
   gameState: 2
   startingState: 2
   menuScreenSceneName: MainMenu
+  finalScreenSceneName: ScoreDisplayScreen
   LevelNames:
+  - SampleScene
+  - SampleScene
   - SampleScene
 --- !u!4 &1719498469
 Transform:
