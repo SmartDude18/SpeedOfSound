@@ -669,8 +669,8 @@ Transform:
   m_GameObject: {fileID: 745082162}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.49607, y: -0.49, z: 14.6664}
-  m_LocalScale: {x: 14.877451, y: 1, z: 8.465336}
+  m_LocalPosition: {x: -1.4961, y: -0.49, z: 14.666}
+  m_LocalScale: {x: 29.55852, y: 1, z: 27.27616}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 411281354}
@@ -1155,8 +1155,9 @@ MonoBehaviour:
   groundCheckDistance: 1
   jumpPower: 12
   airControlSensitivity: 0
-  maxSlideDuration: 0
-  slideHeightModifier: 0
+  slideHeightModifier: 0.5
+  maxSlideDuration: 2
+  slideCooldown: 0.5
   maxWallrunTime: 0
   grappelMaxLength: 100
   swingAirControlSensitivity: 0

@@ -15,9 +15,10 @@ public class PlayerMovement : MonoBehaviour
     [Space(15)]
     [Header("Sliding Settings")]
     [SerializeField]
-    private float maxSlideDuration;
-    [SerializeField]
     private float slideHeightModifier;
+    [SerializeField]
+    private float maxSlideDuration, slideCooldown;
+    
 
     [Space(15)]
     [Header("WallRunning Settings")]
@@ -58,8 +59,8 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField]
     private bool hasDoubleJumped;
 
-    private bool isGrounded;
-    private float slideTimer = 0, groundDecayDelayTimer = 0;
+    private bool isGrounded, isSliding;
+    private float slideTimer = 0, slideCooldownTimer, groundDecayDelayTimer = 0;
 
     //grappeling
     private Vector3? grappelPoint;
@@ -77,6 +78,7 @@ public class PlayerMovement : MonoBehaviour
         lineRenderer.endWidth = 0.1f;
         //color
         lineRenderer.material = grappelLineMat;
+
     }
 
     // Update is called once per frame
@@ -118,13 +120,20 @@ public class PlayerMovement : MonoBehaviour
 
     void handleSlide()
     {
-        if (Input.GetKey("c"))
+        if (isSliding) { slideTimer += Time.deltaTime; }
+        else { slideCooldownTimer += Time.deltaTime; }
+        
+        if (Input.GetKey("c") && slideCooldownTimer >= slideCooldown && !isSliding)
         {
+            isSliding = true;
             transform.localScale = new Vector3(1,slideHeightModifier);
+            slideTimer = 0;
         }
-        else
+        else if(slideTimer >= maxSlideDuration && isSliding)
         {
+            isSliding = false;
             transform.localScale = Vector3.one;
+            slideCooldownTimer = 0;
         }
     }
 
@@ -133,7 +142,7 @@ public class PlayerMovement : MonoBehaviour
         //take input with acceleration and add to rigidbody
         playerRB.AddForce((transform.forward * Input.GetAxis("Vertical") * groundAcceleration) + (transform.right * Input.GetAxis("Horizontal") * groundAcceleration), ForceMode.Force);
         //if on the ground and speed is more than the groundSpeedDecayUpperBound, start the timer
-        if (isGrounded && playerRB.linearVelocity.magnitude >= groundSpeedDecayUpperBound)
+        if (isGrounded && playerRB.linearVelocity.magnitude >= groundSpeedDecayUpperBound && !isSliding)
         {
             groundDecayDelayTimer += Time.deltaTime;
             if (groundDecayDelayTimer >= groundSpeedDecayDelay)
