@@ -37,18 +37,22 @@ public class GameManager : MonoBehaviour
     private bool loadingMenu = false;
     private bool loadingGameLevel = false;
     private bool startingGame = false;
+    private bool loadingFinalScreen = false;
 
-    private bool titleSceneLoaded = false;
+    private bool finalSceneLoaded = false;
     private bool menuSceneLoaded = false;
     private bool gameSceneLoaded = false;
 
     private int currentLevel = -1; //This MUST Start At -1!!!!!!!! (for the first scene to load correctly)
     private int maxLevel;
 
+    private float timer = 10.5f;
+    private float topSpeed = 112;
+
     [SerializeField] private GameState startingState = GameState.LOADTITLE;
 
-    //[SerializeField] private string titleScreenSceneName;
     [SerializeField] private string menuScreenSceneName;
+    [SerializeField] private string finalScreenSceneName;
     //[SerializeField] private string gameSceneName;
 
     [Tooltip("please make level names and scene names align!!! (this is case sensitive)")]
@@ -111,6 +115,11 @@ public class GameManager : MonoBehaviour
                 PlayGameUpdate();
                 break;
             case GameState.LOADLEVELCOMPLETESCREEN:
+                if(!loadingFinalScreen)
+                {
+                    StartCoroutine(LoadFinalScene());
+                    loadingFinalScreen = true;
+                }
                 break;
             case GameState.LEVELCOMPLETESCREEN:
                 break;
@@ -119,6 +128,26 @@ public class GameManager : MonoBehaviour
         }
     }
 
+
+    public int GetCurrentLevel()
+    {
+        return currentLevel;
+    }
+
+    public int GetMaxLevel()
+    {
+        return maxLevel;
+    }
+
+    public float getTimer()
+    {
+        return timer;
+    }
+
+    public float getTopSpeed()
+    {
+        return topSpeed;
+    }
 
 
 
@@ -163,15 +192,15 @@ public class GameManager : MonoBehaviour
     #region GameStateUpdates
 
     /// <summary>
-    /// Loads title screen scene and unloads all other non-base scenes
+    /// Loads final screen scene and unloads all other non-base scenes
     /// </summary>
-    private void LoadTitleScene()
+    private IEnumerator LoadFinalScene()
     {
         if (!sceneLoadingComplete)
         {
             if (menuSceneLoaded)
             {
-                StartCoroutine(UnloadScene(menuScreenSceneName));
+                yield return StartCoroutine(UnloadScene(menuScreenSceneName));
                 menuSceneLoaded = false;
             }
 
@@ -181,17 +210,20 @@ public class GameManager : MonoBehaviour
             //    gameSceneLoaded = false;
             //}
             //
-            //if (!titleSceneLoaded)
-            //{
-            //    StartCoroutine(LoadScene(titleScreenSceneName));
-            //    titleSceneLoaded = true;
-            //}
+            if (!finalSceneLoaded)
+            {
+               yield return StartCoroutine(LoadScene(finalScreenSceneName));
+                finalSceneLoaded = true;
+            }
 
 
             sceneLoadingComplete = true;
         }
 
         sceneLoadingComplete = false;
+        loadingFinalScreen = false;
+
+        gameState = GameState.LEVELCOMPLETESCREEN;
     }
 
     /// <summary>
@@ -201,11 +233,11 @@ public class GameManager : MonoBehaviour
     {
         if (!sceneLoadingComplete)
         {
-           //if (titleSceneLoaded)
-           //{
-           //    StartCoroutine(UnloadScene(titleScreenSceneName));
-           //    titleSceneLoaded = false;
-           //}
+           if (finalSceneLoaded)
+           {
+               yield return StartCoroutine(UnloadScene(finalScreenSceneName));
+               finalSceneLoaded = false;
+           }
            //
            //if (gameSceneLoaded)
            //{
@@ -234,15 +266,15 @@ public class GameManager : MonoBehaviour
     {
         if (!sceneLoadingComplete)
         {
-            //if (titleSceneLoaded)
-            //{
-            //    StartCoroutine(UnloadScene(titleScreenSceneName));
-            //    titleSceneLoaded = false;
-            //}
+            if (finalSceneLoaded)
+            {
+                yield return StartCoroutine(UnloadScene(finalScreenSceneName));
+                finalSceneLoaded = false;
+            }
 
             if (menuSceneLoaded)
             {
-                StartCoroutine(UnloadScene(menuScreenSceneName));
+                yield return StartCoroutine(UnloadScene(menuScreenSceneName));
                 menuSceneLoaded = false;
             }
 
@@ -256,7 +288,7 @@ public class GameManager : MonoBehaviour
                 //print(currentLevel);
 
                 currentLevel++;
-                if (currentLevel > maxLevel)
+                if (currentLevel >= maxLevel)
                 {
                     gameState = GameState.LOADMAINMENU;
                     currentLevel = 0;
@@ -269,8 +301,8 @@ public class GameManager : MonoBehaviour
 
             if(!levelLoadingComplete)
             {
-                print(currentLevel);
-                print(LevelNames.Length);
+                //print(currentLevel);
+                //print(LevelNames.Length);
                 yield return StartCoroutine(LoadScene(LevelNames[currentLevel]));
 
                 levelLoadingComplete = true;
@@ -287,7 +319,7 @@ public class GameManager : MonoBehaviour
         levelUnloadingComplete = false;
         levelLoadingComplete = false;
 
-
+        loadingGameLevel = false;
         gameState = GameState.STARTGAME;
     }
 
@@ -309,6 +341,11 @@ public class GameManager : MonoBehaviour
     private void PlayGameUpdate()
     {
         //ANY GAME MANAGER CRITICAL LOGIC GOES HERE!!!
+
+        if(Input.GetKeyDown(KeyCode.N))
+        {
+            gameState = GameState.LOADLEVEL;
+        }
     }
 
 
