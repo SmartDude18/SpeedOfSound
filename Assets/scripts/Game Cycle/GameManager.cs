@@ -59,6 +59,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private string[] LevelNames; //please make level names and scene names align!!! (this is case sensitive)
 
 
+    [SerializeField] private GameObject HUD;
+
     private void Awake()
     {
         if (_instance != null && _instance != this)
@@ -196,6 +198,8 @@ public class GameManager : MonoBehaviour
     /// </summary>
     private IEnumerator LoadFinalScene()
     {
+        HUD.SetActive(false);
+
         if (!sceneLoadingComplete)
         {
             if (menuSceneLoaded)
@@ -231,6 +235,8 @@ public class GameManager : MonoBehaviour
     /// </summary>
     private IEnumerator LoadMenuScene()
     {
+        HUD.SetActive(false);
+
         if (!sceneLoadingComplete)
         {
            if (finalSceneLoaded)
@@ -329,6 +335,8 @@ public class GameManager : MonoBehaviour
 
         //So that it won't crash during early testing (remove this once we have the countdown)
         yield return new WaitForSeconds(0.1f);
+
+        HUD.SetActive(true);
 
         gameState = GameState.PLAY;
         startingGame = false;
