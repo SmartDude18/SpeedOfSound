@@ -53,6 +53,8 @@ public class GameManager : MonoBehaviour
     private float currentSpeed = 98;
     private float topSpeed = 112;
 
+    private AudioSource currentAudio = null;
+
     [SerializeField] private GameState startingState = GameState.LOADTITLE;
 
     [SerializeField] private string menuScreenSceneName;
@@ -69,6 +71,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TMPro.TMP_Text timerText;
     [SerializeField] private TMPro.TMP_Text speedText;
     [SerializeField] private TMPro.TMP_Text countDownText;
+
+    [SerializeField] private AudioSource MenuMusic;
+    [SerializeField] private AudioSource ScoreScreenMusic;
+
+    [Tooltip("Audio Sources must be placed at same index as corresponding level")]
+    [SerializeField] private AudioSource[] levelAudio;
 
     private void Awake()
     {
@@ -238,6 +246,12 @@ public class GameManager : MonoBehaviour
         yield return StartCoroutine(CountDown());
         CountDownPanel.SetActive(false);
 
+        //if(currentAudio != null && !currentAudio.isPlaying)
+        if(currentAudio != null)
+        {
+            currentAudio.Play();
+        }
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
@@ -254,6 +268,11 @@ public class GameManager : MonoBehaviour
 
     public void PauseGame()
     {
+        if(currentAudio != null)
+        {
+            currentAudio.Pause();
+        }
+
         PauseGameTime();
 
         Cursor.lockState = CursorLockMode.None;
@@ -262,6 +281,13 @@ public class GameManager : MonoBehaviour
         PausePanel.SetActive(true);
     }
 
+
+    private void ChangeMusic(AudioSource music, bool startMusic)
+    {
+        if(currentAudio != null) currentAudio.Stop();
+        currentAudio = music;
+        if(currentAudio != null && startMusic) currentAudio.Play();
+    }
 
     #endregion Other Functions
 
@@ -299,6 +325,8 @@ public class GameManager : MonoBehaviour
 
             sceneLoadingComplete = true;
         }
+
+        ChangeMusic(ScoreScreenMusic, true);
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
@@ -341,9 +369,12 @@ public class GameManager : MonoBehaviour
                 menuSceneLoaded = true;
             }
 
+            ChangeMusic(MenuMusic, true);
 
             sceneLoadingComplete = true;
         }
+
+
 
         sceneLoadingComplete = false;
         loadingMenu = false;
@@ -405,6 +436,16 @@ public class GameManager : MonoBehaviour
             gameSceneLoaded = true;
 
             sceneLoadingComplete = true;
+        }
+
+        //ChangeMusic(null);
+        if(levelAudio.Length <= currentLevel)
+        {
+            ChangeMusic(null, false);
+        }
+        else
+        {
+            ChangeMusic(levelAudio[currentLevel], false);
         }
 
         sceneLoadingComplete = false;
@@ -517,6 +558,8 @@ public class GameManager : MonoBehaviour
             }
 
             gameSceneLoaded = true;
+
+            ChangeMusic(currentAudio, false);
 
             sceneLoadingComplete = true;
         }
