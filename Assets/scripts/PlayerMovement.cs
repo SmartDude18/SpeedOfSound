@@ -84,6 +84,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if(Time.timeScale != 0)
         {
+            handleSlide();
             playerMove();
             GroundCheck();
             if (Input.GetButtonDown("Jump"))
@@ -112,6 +113,18 @@ public class PlayerMovement : MonoBehaviour
                 playerRB.AddForce(jumpDir * jumpPower, ForceMode.Impulse);
                 hasDoubleJumped = true;
             }
+        }
+    }
+
+    void handleSlide()
+    {
+        if (Input.GetKey("c"))
+        {
+            transform.localScale = new Vector3(1,slideHeightModifier);
+        }
+        else
+        {
+            transform.localScale = Vector3.one;
         }
     }
 
