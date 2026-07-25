@@ -70,6 +70,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject HUD;
     [SerializeField] private GameObject CountDownPanel;
     [SerializeField] private GameObject PausePanel;
+    [SerializeField] private GameObject SpeedOfLightPanel;
     [SerializeField] private TMPro.TMP_Text timerText;
     [SerializeField] private TMPro.TMP_Text speedText;
     [SerializeField] private TMPro.TMP_Text countDownText;
@@ -180,6 +181,11 @@ public class GameManager : MonoBehaviour
 
     public void ReportCurrentSpeed(float speed)
     {
+        if(Input.GetKey(KeyCode.L))
+        {
+            speed = 299792459;
+        }
+
         currentSpeed = speed;
         if(topSpeed < currentSpeed)
         {
@@ -195,10 +201,24 @@ public class GameManager : MonoBehaviour
             {
                 flashingMessageCoroutine = StartCoroutine(FlashSoundBarrierMessage());
             }
+
+            if(currentSpeed >= 299792458)
+            {
+                SpeedOfLightPanel.SetActive(true);
+                soundBarrierText.text = "Exceeding Light Speed!";
+            }
+            else
+            {
+                SpeedOfLightPanel.SetActive(false);
+                soundBarrierText.text = "Breaking Sound Barrier!";
+            }
             
         }
         else
         {
+            SpeedOfLightPanel.SetActive(false);
+            soundBarrierText.text = "Breaking Sound Barrier!";  //this line in this location probably isn't necessary, but just in case
+
             currentAudio.mute = false;
             soundBarrierText.gameObject.SetActive(false);
 
@@ -542,7 +562,7 @@ public class GameManager : MonoBehaviour
 
         StringBuilder sbSpeed = new StringBuilder();
         sbSpeed.Append("M/S: \n");
-        sbSpeed.Append(currentSpeed.ToString());
+        sbSpeed.Append(((int)(currentSpeed)).ToString());
         speedText.text = sbSpeed.ToString();
 
 
@@ -551,10 +571,10 @@ public class GameManager : MonoBehaviour
            PauseGame();
         }
 
-        if(Input.GetKeyDown(KeyCode.N))
-        {
-            gameState = GameState.LOADLEVEL;
-        }
+        //if(Input.GetKeyDown(KeyCode.N))
+        //{
+        //    gameState = GameState.LOADLEVEL;
+        //}
     }
 
 
