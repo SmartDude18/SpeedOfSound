@@ -23,7 +23,10 @@ public class PlayerMovement : MonoBehaviour
     [Space(15)]
     [Header("WallRunning Settings")]
     [SerializeField]
-    private float maxWallrunTime;
+    private LayerMask WallRunWalls;
+    [SerializeField]
+    private float maxWallrunTime, wallRunWallDistance;
+    
 
     [Space(15)]
     [Header("Grappeling Settings")]
@@ -94,6 +97,7 @@ public class PlayerMovement : MonoBehaviour
                 Jump();
             }
             CheckGrappelInput();
+            WallRun();
             GameManager.Instance.ReportCurrentSpeed(playerRB.linearVelocity.magnitude);
         }
     }
@@ -278,6 +282,16 @@ public class PlayerMovement : MonoBehaviour
 
     void WallRun()
     {
+
+        RaycastHit wallLeftInfo, wallRightInfo;
+
+        bool wallLeft = Physics.Raycast(transform.position, -transform.right, out wallLeftInfo, wallRunWallDistance, WallRunWalls);
+        bool wallRight = Physics.Raycast(transform.position, transform.right, out wallRightInfo, wallRunWallDistance, WallRunWalls);
+
+        if(!isGrounded && !isSliding && (wallRight || wallLeft))
+        {
+            Vector3 wallNormal = wallRight ? wallRightInfo.normal : wallLeftInfo.normal;
+        }
         //i dont think this is how it will be formatted, but I can use this to hold notes
         //raycast to either side of player to look for walls
         //if hit on wallrun surface :
