@@ -25,7 +25,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField]
     private LayerMask WallRunWalls;
     [SerializeField]
-    private float maxWallrunTime, wallRunWallDistance;
+    private float maxWallrunTime, wallRunWallDistance, wallRunForce;
     
 
     [Space(15)]
@@ -98,7 +98,7 @@ public class PlayerMovement : MonoBehaviour
             }
             CheckGrappelInput();
             WallRun();
-            GameManager.Instance.ReportCurrentSpeed(playerRB.linearVelocity.magnitude);
+            //GameManager.Instance.ReportCurrentSpeed(playerRB.linearVelocity.magnitude);
         }
     }
 
@@ -290,7 +290,21 @@ public class PlayerMovement : MonoBehaviour
 
         if(!isGrounded && !isSliding && (wallRight || wallLeft))
         {
+            hasDoubleJumped = false;
+            playerRB.useGravity = false;
             Vector3 wallNormal = wallRight ? wallRightInfo.normal : wallLeftInfo.normal;
+
+            Vector3 wallForward = Vector3.Cross(wallNormal, transform.up);
+             
+            if((transform.forward - wallForward).magnitude > (transform.forward - -wallForward).magnitude){
+                wallForward = -wallForward;
+            }
+
+            playerRB.AddForce(wallForward * wallRunForce, ForceMode.Force);
+        }
+        else
+        {
+            playerRB.useGravity = true;
         }
         //i dont think this is how it will be formatted, but I can use this to hold notes
         //raycast to either side of player to look for walls
