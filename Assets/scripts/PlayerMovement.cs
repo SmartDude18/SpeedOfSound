@@ -100,7 +100,7 @@ public class PlayerMovement : MonoBehaviour
             WallRun();
             
             //  ---COMMENT OUT THIS LINE WHEN TESTING---
-            //GameManager.Instance.ReportCurrentSpeed(playerRB.linearVelocity.magnitude);
+            GameManager.Instance.ReportCurrentSpeed(playerRB.linearVelocity.magnitude);
         }
     }
 
