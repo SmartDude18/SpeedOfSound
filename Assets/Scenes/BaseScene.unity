@@ -2683,6 +2683,7 @@ MonoBehaviour:
   finalScreenSceneName: ScoreDisplayScreen
   LevelNames:
   - MegaLevel
+  - SpeedTube
   HUD: {fileID: 1325695583}
   CountDownPanel: {fileID: 1727339038}
   PausePanel: {fileID: 1938404124}
@@ -2695,8 +2696,8 @@ MonoBehaviour:
   MenuMusic: {fileID: 1293277233}
   ScoreScreenMusic: {fileID: 1434617816}
   levelAudio:
-  - {fileID: 1326248959}
   - {fileID: 337319855}
+  - {fileID: 168765421}
   - {fileID: 409164234}
 --- !u!4 &1719498469
 Transform:
