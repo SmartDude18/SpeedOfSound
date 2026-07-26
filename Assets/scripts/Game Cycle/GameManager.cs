@@ -182,10 +182,11 @@ public class GameManager : MonoBehaviour
 
     public void ReportCurrentSpeed(float speed)
     {
-        if(Input.GetKey(KeyCode.L))
+        /*if(Input.GetKey(KeyCode.L))
         {
             speed = 299792459;
         }
+        */
 
         currentSpeed = speed;
         if(topSpeed < currentSpeed)
