@@ -49,9 +49,9 @@ public class GameManager : MonoBehaviour
     private int currentLevel = -1; //This MUST Start At -1!!!!!!!! (for the first scene to load correctly)
     private int maxLevel;
 
-    private float timer = 10.5f;
-    private float currentSpeed = 98;
-    private float topSpeed = 112;
+    private float timer = 0f;
+    private float currentSpeed = 0;
+    private float topSpeed = 0;
 
     private AudioSource currentAudio = null;
 
@@ -70,6 +70,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject HUD;
     [SerializeField] private GameObject CountDownPanel;
     [SerializeField] private GameObject PausePanel;
+    [SerializeField] private GameObject CrosshairPanel;
     [SerializeField] private GameObject SpeedOfLightPanel;
     [SerializeField] private TMPro.TMP_Text timerText;
     [SerializeField] private TMPro.TMP_Text speedText;
@@ -310,6 +311,7 @@ public class GameManager : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        CrosshairPanel.SetActive(true);
 
         Time.timeScale = 1.0f;
     }
@@ -331,6 +333,7 @@ public class GameManager : MonoBehaviour
 
         PauseGameTime();
 
+        CrosshairPanel?.SetActive(false);
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
