@@ -98,6 +98,8 @@ public class PlayerMovement : MonoBehaviour
             }
             CheckGrappelInput();
             WallRun();
+            
+            //  ---COMMENT OUT THIS LINE WHEN TESTING---
             //GameManager.Instance.ReportCurrentSpeed(playerRB.linearVelocity.magnitude);
         }
     }
