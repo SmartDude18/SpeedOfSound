@@ -2684,6 +2684,7 @@ MonoBehaviour:
   LevelNames:
   - MegaLevel
   - SpeedTube
+  - CornersOfChaos
   HUD: {fileID: 1325695583}
   CountDownPanel: {fileID: 1727339038}
   PausePanel: {fileID: 1938404124}
@@ -2699,6 +2700,7 @@ MonoBehaviour:
   - {fileID: 337319855}
   - {fileID: 168765421}
   - {fileID: 409164234}
+  - {fileID: 284732273}
 --- !u!4 &1719498469
 Transform:
   m_ObjectHideFlags: 0
