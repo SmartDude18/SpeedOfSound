@@ -2530,9 +2530,7 @@ MonoBehaviour:
   menuScreenSceneName: MainMenu
   finalScreenSceneName: ScoreDisplayScreen
   LevelNames:
-  - testMovementScene
-  - testMovementScene
-  - testMovementScene
+  - MegaLevel
   HUD: {fileID: 1325695583}
   CountDownPanel: {fileID: 1727339038}
   PausePanel: {fileID: 1938404124}
